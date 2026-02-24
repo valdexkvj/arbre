@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Structures de Données - Arbres Binaires</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f3f4f6;
+            --border: #e5e7eb;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+        .tabs {
+            display: flex;
+            background: var(--dark);
+            border-bottom: 3px solid var(--primary);
+            overflow-x: auto;
+        }
+        .tab-button {
+            flex: 1;
+            min-width: 150px;
+            padding: 18px 30px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .tab-button:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+        .tab-button.active {
+            background: var(--primary);
+        }
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: white;
+        }
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        .lesson-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary);
+        }
+        .lesson-card h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        .lesson-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        .lesson-number {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .exercise-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+        .exercise-card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .exercise-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .exercise-title {
+            font-size: 1.3rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        .difficulty {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .difficulty.easy {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .difficulty.medium {
+            background: #fed7aa;
+            color: #92400e;
+        }
+        .difficulty.hard {
+            background: #fecaca;
+            color: #991b1b;
+        }
+        .exercise-description {
+            color: #555;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .code-block::-webkit-scrollbar {
+            height: 8px;
+        }
+        .code-block::-webkit-scrollbar-track {
+            background: #0f172a;
+            border-radius: 10px;
+        }
+        .code-block::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        .keyword {
+            color: #c792ea;
+        }
+        .function {
+            color: #82aaff;
+        }
+        .string {
+            color: #c3e88d;
+        }
+        .comment {
+            color: #676e95;
+            font-style: italic;
+        }
+        .number {
+            color: #f78c6c;
+        }
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        .btn-warning:hover {
+            background: #d97706;
+        }
+        .hidden {
+            display: none;
+        }
+        .hint-box {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .solution-box {
+            background: #d1fae5;
+            border-left: 4px solid var(--success);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .editor-container {
+            margin-top: 20px;
+        }
+        .editor-header {
+            background: var(--dark);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .editor-tabs {
+            display: flex;
+            gap: 10px;
+        }
+        .editor-tab {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .editor-tab.active {
+            background: var(--primary);
+        }
+        .editor-tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .editor-body {
+            background: #1e293b;
+            border-radius: 0 0 10px 10px;
+            overflow: hidden;
+        }
+        textarea {
+            width: 100%;
+            min-height: 400px;
+            background: #1e293b;
+            color: #e2e8f0;
+            border: none;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            resize: vertical;
+            outline: none;
+        }
+        .output-container {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            min-height: 150px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+        .output-header {
+            color: var(--success);
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 5px;
+        }
+        .tree-visualization {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .tree-node {
+            fill: var(--primary);
+            stroke: var(--primary-dark);
+            stroke-width: 2;
+        }
+        .tree-text {
+            fill: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .tree-line {
+            stroke: #64748b;
+            stroke-width: 2;
+        }
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .info-box h4 {
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover {
+            background: #dc2626;
+        }
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            .lesson-grid {
+                grid-template-columns: 1fr;
+            }
+            .tab-button {
+                padding: 15px 20px;
+                font-size: 0.9rem;
+            }
+            .tabs {
+                flex-wrap: wrap;
+            }
+        }
+        .lesson-content {
+            line-height: 1.8;
+        }
+        .lesson-content h3 {
+            color: var(--primary);
+            margin: 25px 0 15px 0;
+            font-size: 1.5rem;
+        }
+        .lesson-content h4 {
+            color: var(--secondary);
+            margin: 20px 0 10px 0;
+            font-size: 1.2rem;
+        }
+        .lesson-content ul {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        .lesson-content li {
+            margin: 8px 0;
+            color: #555;
+        }
+        .example-list {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+            margin: 15px 0;
+        }
+        .example-list strong {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌳 Structures de Données : Les Arbres Binaires</h1>
+            <p>Apprenez les arbres binaires de manière interactive avec des cours, exercices et codage en C</p>
+        </header>
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('cours')">📚 Cours</button>
+            <button class="tab-button" onclick="showTab('exercices')">✍️ Exercices</button>
+            <button class="tab-button" onclick="showTab('editeur')">💻 Éditeur C</button>
+        </div>
+        <!-- COURS TAB -->
+        <div id="cours" class="tab-content active">
+            <h2 style="margin-bottom: 20px; color: var(--dark);">📖 Leçons sur les Arbres Binaires</h2>
+            
+            <div class="lesson-grid">
+                <div class="lesson-card" onclick="showLesson(1)">
+                    <h3><span class="lesson-number">1</span>Introduction aux Arbres</h3>
+                    <p>Découvrez ce qu'est un arbre binaire, sa structure et ses applications dans l'informatique.</p>
+                </div>
+                <div class="lesson-card" onclick="showLesson(2)">
+                    <h3><span class="lesson-number">2</span>Terminologie</h3>
+                    <p>Apprenez les termes essentiels : racine, feuille, nœud, hauteur, profondeur, degré...</p>
+                </div>
+                <div class="lesson-card" onclick="showLesson(3)">
+                    <h3><span class="lesson-number">3</span>Implémentation</h3>
+                    <p>Comment implémenter un arbre binaire avec des listes en Python.</p>
+                </div>
+                <div class="lesson-card" onclick="showLesson(4)">
+                    <h3><span class="lesson-number">4</span>Parcours en Profondeur</h3>
+                    <p>Explorez les parcours préfixe, infixe et postfixe (suffixe) des arbres.</p>
+                </div>
+                <div class="lesson-card" onclick="showLesson(5)">
+                    <h3><span class="lesson-number">5</span>Parcours en Largeur</h3>
+                    <p>Parcourez un arbre niveau par niveau avec l'algorithme de parcours en largeur.</p>
+                </div>
+                <div class="lesson-card" onclick="showLesson(6)">
+                    <h3><span class="lesson-number">6</span>Arbres Binaires de Recherche</h3>
+                    <p>Découvrez les ABR et leurs propriétés pour des recherches efficaces.</p>
+                </div>
+            </div>
+        </div>
+        <!-- EXERCICES TAB -->
+        <div id="exercices" class="tab-content">
+            <h2 style="margin-bottom: 20px; color: var(--dark);">✍️ Exercices Pratiques</h2>
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <h3 class="exercise-title">Exercice 1 : Implémentation par liste</h3>
+                    <span class="difficulty easy">Facile</span>
+                </div>
+                <p class="exercise-description">
+                    Donner l'implémentation par des listes de l'arbre suivant :
+                </p>
+                <div class="tree-visualization">
+                    <svg width="300" height="200">
+                        <line x1="150" y1="30" x2="100" y2="80" class="tree-line"/>
+                        <line x1="150" y1="30" x2="200" y2="80" class="tree-line"/>
+                        <line x1="100" y1="80" x2="60" y2="130" class="tree-line"/>
+                        <line x1="100" y1="80" x2="140" y2="130" class="tree-line"/>
+                        <line x1="200" y1="80" x2="180" y2="130" class="tree-line"/>
+                        
+                        <circle cx="150" cy="30" r="20" class="tree-node"/>
+                        <text x="150" y="37" text-anchor="middle" class="tree-text">4</text>
+                        
+                        <circle cx="100" cy="80" r="20" class="tree-node"/>
+                        <text x="100" y="87" text-anchor="middle" class="tree-text">10</text>
+                        
+                        <circle cx="200" cy="80" r="20" class="tree-node"/>
+                        <text x="200" y="87" text-anchor="middle" class="tree-text">7</text>
+                        
+                        <circle cx="60" cy="130" r="20" class="tree-node"/>
+                        <text x="60" y="137" text-anchor="middle" class="tree-text">7</text>
+                        
+                        <circle cx="140" cy="130" r="20" class="tree-node"/>
+                        <text x="140" y="137" text-anchor="middle" class="tree-text">9</text>
+                        
+                        <circle cx="180" cy="130" r="20" class="tree-node"/>
+                        <text x="180" y="137" text-anchor="middle" class="tree-text">5</text>
+                    </svg>
+                </div>
+                <button class="btn btn-warning" onclick="toggleHint(1)">💡 Indice</button>
+                <button class="btn btn-success" onclick="toggleSolution(1)">✅ Solution</button>
+                
+                <div id="hint-1" class="hint-box hidden">
+                    <strong>💡 Indice :</strong> Un arbre binaire est représenté par : [valeur, fils_gauche, fils_droit]. Un arbre vide est None.
+                </div>
+                
+                <div id="solution-1" class="solution-box hidden">
+                    <strong>✅ Solution :</strong>
+                    <div class="code-block">A = [<span class="number">4</span>, [<span class="number">10</span>, [<span class="number">7</span>, <span class="keyword">None</span>, <span class="keyword">None</span>], [<span class="number">9</span>, <span class="keyword">None</span>, <span class="keyword">None</span>]], [<span class="number">7</span>, [<span class="number">5</span>, <span class="keyword">None</span>, <span class="keyword">None</span>], <span class="keyword">None</span>]]</div>
+                </div>
+            </div>
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <h3 class="exercise-title">Exercice 2 : Compter les nœuds</h3>
+                    <span class="difficulty easy">Facile</span>
+                </div>
+                <p class="exercise-description">
+                    Écrire une fonction récursive <code>nbre_noeuds(arb)</code> qui retourne le nombre de nœuds d'un arbre binaire.
+                </p>
+                <button class="btn btn-warning" onclick="toggleHint(2)">💡 Indice</button>
+                <button class="btn btn-success" onclick="toggleSolution(2)">✅ Solution</button>
+                
+                <div id="hint-2" class="hint-box hidden">
+                    <strong>💡 Indice :</strong> Le nombre de nœuds = 1 (nœud actuel) + nœuds du sous-arbre gauche + nœuds du sous-arbre droit. Si l'arbre est vide, retourner 0.
+                </div>
+                
+                <div id="solution-2" class="solution-box hidden">
+                    <strong>✅ Solution :</strong>
+                    <div class="code-block"><span class="keyword">def</span> <span class="function">nbre_noeuds</span>(arb):
+    <span class="keyword">if</span> arb == <span class="keyword">None</span>:
+        <span class="keyword">return</span> <span class="number">0</span>
+    <span class="keyword">return</span> <span class="number">1</span> + <span class="function">nbre_noeuds</span>(arb[<span class="number">1</span>]) + <span class="function">nbre_noeuds</span>(arb[<span class="number">2</span>])</div>
+                </div>
+            </div>
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <h3 class="exercise-title">Exercice 3 : Hauteur de l'arbre</h3>
+                    <span class="difficulty medium">Moyen</span>
+                </div>
+                <p class="exercise-description">
+                    Écrire une fonction récursive <code>hauteur(arb)</code> qui retourne la hauteur d'un arbre binaire.
+                </p>
+                <button class="btn btn-warning" onclick="toggleHint(3)">💡 Indice</button>
+                <button class="btn btn-success" onclick="toggleSolution(3)">✅ Solution</button>
+                
+                <div id="hint-3" class="hint-box hidden">
+                    <strong>💡 Indice :</strong> La hauteur d'un arbre = 1 + maximum des hauteurs de ses sous-arbres. Un arbre vide a une hauteur de 0.
+                </div>
+                
+                <div id="solution-3" class="solution-box hidden">
+                    <strong>✅ Solution :</strong>
+                    <div class="code-block"><span class="keyword">def</span> <span class="function">hauteur</span>(arb):
+    <span class="keyword">if</span> arb == <span class="keyword">None</span>:
+        <span class="keyword">return</span> <span class="number">0</span>
+    <span class="keyword">return</span> <span class="number">1</span> + <span class="function">max</span>(<span class="function">hauteur</span>(arb[<span class="number">1</span>]), <span class="function">hauteur</span>(arb[<span class="number">2</span>]))</div>
+                </div>
+            </div>
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <h3 class="exercise-title">Exercice 4 : Vérifier si c'est un ABR</h3>
+                    <span class="difficulty hard">Difficile</span>
+                </div>
+                <p class="exercise-description">
+                    Écrire une fonction <code>est_abr(arb)</code> qui vérifie si un arbre binaire est un arbre binaire de recherche.
+                    Rappel : Dans un ABR, tous les nœuds du sous-arbre gauche sont ≤ racine, et tous les nœuds du sous-arbre droit sont > racine.
+                </p>
+                <button class="btn btn-warning" onclick="toggleHint(4)">💡 Indice</button>
+                <button class="btn btn-success" onclick="toggleSolution(4)">✅ Solution</button>
+                
+                <div id="hint-4" class="hint-box hidden">
+                    <strong>💡 Indice :</strong> Vous aurez besoin de deux fonctions auxiliaires : max_arb() et min_arb() pour trouver le maximum du sous-arbre gauche et le minimum du sous-arbre droit.
+                </div>
+                
+                <div id="solution-4" class="solution-box hidden">
+                    <strong>✅ Solution :</strong>
+                    <div class="code-block"><span class="keyword">def</span> <span class="function">est_abr</span>(A):
+    <span class="keyword">if</span> A == <span class="keyword">None</span>:
+        <span class="keyword">return</span> <span class="keyword">True</span>
+    <span class="keyword">return</span> (A[<span class="number">1</span>] == <span class="keyword">None</span> <span class="keyword">or</span> <span class="function">max_arb</span>(A[<span class="number">1</span>]) &lt;= A[<span class="number">0</span>]) <span class="keyword">and</span> \
+           (A[<span class="number">2</span>] == <span class="keyword">None</span> <span class="keyword">or</span> <span class="function">min_arb</span>(A[<span class="number">2</span>]) &gt; A[<span class="number">0</span>]) <span class="keyword">and</span> \
+           <span class="function">est_abr</span>(A[<span class="number">1</span>]) <span class="keyword">and</span> <span class="function">est_abr</span>(A[<span class="number">2</span>])</div>
+                </div>
+            </div>
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <h3 class="exercise-title">Exercice 5 : Recherche dichotomique</h3>
+                    <span class="difficulty medium">Moyen</span>
+                </div>
+                <p class="exercise-description">
+                    Écrire une fonction <code>rechercher(x, abr)</code> qui vérifie si un élément x existe dans un arbre binaire de recherche par dichotomie.
+                </p>
+                <button class="btn btn-warning" onclick="toggleHint(5)">💡 Indice</button>
+                <button class="btn btn-success" onclick="toggleSolution(5)">✅ Solution</button>
+                
+                <div id="hint-5" class="hint-box hidden">
+                    <strong>💡 Indice :</strong> Comparez x avec la racine. Si x < racine, cherchez dans le sous-arbre gauche. Si x > racine, cherchez dans le sous-arbre droit.
+                </div>
+                
+                <div id="solution-5" class="solution-box hidden">
+                    <strong>✅ Solution :</strong>
+                    <div class="code-block"><span class="keyword">def</span> <span class="function">rechercher</span>(x, abr):
+    <span class="keyword">if</span> abr == <span class="keyword">None</span>:
+        <span class="keyword">return</span> <span class="keyword">False</span>
+    <span class="keyword">if</span> x == abr[<span class="number">0</span>]:
+        <span class="keyword">return</span> <span class="keyword">True</span>
+    <span class="keyword">if</span> x &lt; abr[<span class="number">0</span>]:
+        <span class="keyword">return</span> <span class="function">rechercher</span>(x, abr[<span class="number">1</span>])
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> <span class="function">rechercher</span>(x, abr[<span class="number">2</span>])</div>
+                </div>
+            </div>
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <h3 class="exercise-title">Exercice 6 : Insertion dans un ABR</h3>
+                    <span class="difficulty medium">Moyen</span>
+                </div>
+                <p class="exercise-description">
+                    Écrire une fonction <code>inserer(arb, v)</code> qui insère correctement une valeur v dans un arbre binaire de recherche.
+                </p>
+                <button class="btn btn-warning" onclick="toggleHint(6)">💡 Indice</button>
+                <button class="btn btn-success" onclick="toggleSolution(6)">✅ Solution</button>
+                
+                <div id="hint-6" class="hint-box hidden">
+                    <strong>💡 Indice :</strong> Si l'arbre est vide, créez un nouveau nœud [v, None, None]. Sinon, insérez récursivement dans le sous-arbre gauche ou droit selon la comparaison avec la racine.
+                </div>
+                
+                <div id="solution-6" class="solution-box hidden">
+                    <strong>✅ Solution :</strong>
+                    <div class="code-block"><span class="keyword">def</span> <span class="function">inserer</span>(arb, v):
+    <span class="keyword">if</span> arb == <span class="keyword">None</span>:
+        <span class="keyword">return</span> [v, <span class="keyword">None</span>, <span class="keyword">None</span>]
+    <span class="keyword">if</span> v &lt;= arb[<span class="number">0</span>]:
+        arb[<span class="number">1</span>] = <span class="function">inserer</span>(arb[<span class="number">1</span>], v)
+    <span class="keyword">else</span>:
+        arb[<span class="number">2</span>] = <span class="function">inserer</span>(arb[<span class="number">2</span>], v)
+    <span class="keyword">return</span> arb</div>
+                </div>
+            </div>
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <h3 class="exercise-title">Exercice 7 : Parcours Postfixe</h3>
+                    <span class="difficulty easy">Facile</span>
+                </div>
+                <p class="exercise-description">
+                    Écrire une fonction <code>parcours_postfixe(arb)</code> qui affiche les valeurs des nœuds en parcours postfixe (suffixe).
+                </p>
+                <button class="btn btn-warning" onclick="toggleHint(7)">💡 Indice</button>
+                <button class="btn btn-success" onclick="toggleSolution(7)">✅ Solution</button>
+                
+                <div id="hint-7" class="hint-box hidden">
+                    <strong>💡 Indice :</strong> En parcours postfixe : Gauche → Droit → Racine
+                </div>
+                
+                <div id="solution-7" class="solution-box hidden">
+                    <strong>✅ Solution :</strong>
+                    <div class="code-block"><span class="keyword">def</span> <span class="function">parcours_postfixe</span>(arb):
+    <span class="keyword">if</span> arb != <span class="keyword">None</span>:
+        <span class="function">parcours_postfixe</span>(arb[<span class="number">1</span>])
+        <span class="function">parcours_postfixe</span>(arb[<span class="number">2</span>])
+        <span class="function">print</span>(arb[<span class="number">0</span>])</div>
+                </div>
+            </div>
+            <div class="exercise-card">
+                <div class="exercise-header">
+                    <h3 class="exercise-title">Exercice 8 : Arbre Parfait</h3>
+                    <span class="difficulty hard">Difficile</span>
+                </div>
+                <p class="exercise-description">
+                    Un arbre binaire parfait peut être représenté par une liste L où :<br>
+                    - L[0] est la racine<br>
+                    - Les fils de L[i] sont L[2*i+1] et L[2*i+2]<br><br>
+                    Écrire une fonction <code>fils_gauche(L, i)</code> qui retourne l'indice du fils gauche du nœud d'indice i.
+                </p>
+                <button class="btn btn-warning" onclick="toggleHint(8)">💡 Indice</button>
+                <button class="btn btn-success" onclick="toggleSolution(8)">✅ Solution</button>
+                
+                <div id="hint-8" class="hint-box hidden">
+                    <strong>💡 Indice :</strong> La formule est 2*i+1 pour le fils gauche et 2*i+2 pour le fils droit.
+                </div>
+                
+                <div id="solution-8" class="solution-box hidden">
+                    <strong>✅ Solution :</strong>
+                    <div class="code-block"><span class="keyword">def</span> <span class="function">fils_gauche</span>(L, i):
+    <span class="keyword">return</span> <span class="number">2</span> * i + <span class="number">1</span>
+<span class="keyword">def</span> <span class="function">fils_droit</span>(L, i):
+    <span class="keyword">return</span> <span class="number">2</span> * i + <span class="number">2</span></div>
+                </div>
+            </div>
+        </div>
+        <!-- EDITEUR TAB -->
+        <div id="editeur" class="tab-content">
+            <h2 style="margin-bottom: 20px; color: var(--dark);">💻 Éditeur de Code C</h2>
+            
+            <div class="editor-container">
+                <div class="editor-header">
+                    <div class="editor-tabs">
+                        <button class="editor-tab active" onclick="loadCExample(1)">Fonctions de base</button>
+                        <button class="editor-tab" onclick="loadCExample(2)">Parcours</button>
+                        <button class="editor-tab" onclick="loadCExample(3)">ABR</button>
+                        <button class="editor-tab" onclick="loadCExample(4)">Calculs</button>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" onclick="runCode()">▶️ Exécuter</button>
+                    </div>
+                </div>
+                <div class="editor-body">
+                    <textarea id="codeEditor" spellcheck="false"></textarea>
+                </div>
+            </div>
+            <div class="output-container">
+                <div class="output-header">📤 Sortie du programme :</div>
+                <div id="output">Cliquez sur "Exécuter" pour voir le résultat...</div>
+            </div>
+        </div>
+    </div>
+    <!-- MODAL FOR LESSONS -->
+    <div id="lessonModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <div id="lessonContent"></div>
+        </div>
+    </div>
+    <script>
+        // Tab Navigation
+        function showTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-button');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        // Toggle Hints and Solutions
+        function toggleHint(id) {
+            const hint = document.getElementById('hint-' + id);
+            hint.classList.toggle('hidden');
+        }
+        function toggleSolution(id) {
+            const solution = document.getElementById('solution-' + id);
+            solution.classList.toggle('hidden');
+        }
+        // Lesson Content
+        const lessons = {
+            1: {
+                title: "Introduction aux Arbres Binaires",
+                content: `
+                    <div class="lesson-content">
+                        <h3>🌳 Qu'est-ce qu'un arbre binaire ?</h3>
+                        <p>Un <strong>arbre binaire</strong> est une structure de données hiérarchique où chaque nœud peut avoir au maximum deux enfants : un fils gauche et un fils droit.</p>
+                        
+                        <div class="info-box">
+                            <h4>Définition formelle</h4>
+                            <p>Un arbre binaire est :</p>
+                            <ul>
+                                <li>Soit vide</li>
+                                <li>Soit composé d'une <strong>racine</strong> portant une valeur et d'une paire d'arbres binaires appelés <strong>fils gauche</strong> et <strong>fils droit</strong></li>
+                            </ul>
+                        </div>
+                        <h3>📊 Applications des arbres</h3>
+                        <div class="example-list">
+                            <ul>
+                                <li><strong>Arbres généalogiques</strong> : Représenter les relations familiales</li>
+                                <li><strong>Expressions arithmétiques</strong> : Évaluer des formules mathématiques</li>
+                                <li><strong>Intelligence artificielle</strong> : Arbres de décision</li>
+                                <li><strong>Systèmes de fichiers</strong> : FAT, EXT, HDFS</li>
+                                <li><strong>Bases de données</strong> : Indexation et recherche rapide</li>
+                                <li><strong>Algorithmes de tri</strong> : Tri par tas (Heap Sort)</li>
+                            </ul>
+                        </div>
+                        <h3>🎯 Types d'arbres</h3>
+                        <h4>Classification selon l'ordre de hiérarchie :</h4>
+                        <ul>
+                            <li><strong>Arbre enraciné</strong> : Possède un nœud racine identifié</li>
+                            <li><strong>Arbre non enraciné</strong> : Aucun nœud n'est désigné comme racine</li>
+                        </ul>
+                        <h4>Classification selon l'arité :</h4>
+                        <ul>
+                            <li><strong>Arbre binaire</strong> : Chaque nœud a au maximum 2 fils</li>
+                            <li><strong>Arbre n-aire</strong> : Chaque nœud peut avoir n fils</li>
+                        </ul>
+                        <div class="tree-visualization">
+                            <svg width="400" height="250">
+                                <line x1="200" y1="40" x2="120" y2="100" class="tree-line"/>
+                                <line x1="200" y1="40" x2="280" y2="100" class="tree-line"/>
+                                <line x1="120" y1="100" x2="70" y2="160" class="tree-line"/>
+                                <line x1="120" y1="100" x2="170" y2="160" class="tree-line"/>
+                                <line x1="280" y1="100" x2="250" y2="160" class="tree-line"/>
+                                <line x1="280" y1="100" x2="310" y2="160" class="tree-line"/>
+                                
+                                <circle cx="200" cy="40" r="25" class="tree-node"/>
+                                <text x="200" y="48" text-anchor="middle" class="tree-text">12</text>
+                                
+                                <circle cx="120" cy="100" r="25" class="tree-node"/>
+                                <text x="120" y="108" text-anchor="middle" class="tree-text">1</text>
+                                
+                                <circle cx="280" cy="100" r="25" class="tree-node"/>
+                                <text x="280" y="108" text-anchor="middle" class="tree-text">7</text>
+                                
+                                <circle cx="70" cy="160" r="25" class="tree-node"/>
+                                <text x="70" y="168" text-anchor="middle" class="tree-text">91</text>
+                                
+                                <circle cx="170" cy="160" r="25" class="tree-node"/>
+                                <text x="170" y="168" text-anchor="middle" class="tree-text">67</text>
+                                
+                                <circle cx="250" cy="160" r="25" class="tree-node"/>
+                                <text x="250" y="168" text-anchor="middle" class="tree-text">82</text>
+                                
+                                <circle cx="310" cy="160" r="25" class="tree-node"/>
+                                <text x="310" y="168" text-anchor="middle" class="tree-text">61</text>
+                                
+                                <text x="200" y="220" text-anchor="middle" fill="#666" font-size="14">Exemple d'arbre binaire</text>
+                            </svg>
+                        </div>
+                    </div>
+                `
+            },
+            2: {
+                title: "Terminologie des Arbres Binaires",
+                content: `
+                    <div class="lesson-content">
+                        <h3>📚 Termes essentiels</h3>
+                        
+                        <div class="info-box">
+                            <h4>🌱 Racine</h4>
+                            <p>Le seul nœud sans père. C'est le point de départ de l'arbre.</p>
+                        </div>
+                        <div class="info-box">
+                            <h4>🍃 Feuille</h4>
+                            <p>Un nœud sans fils (fils gauche et fils droit sont vides).</p>
+                        </div>
+                        <div class="info-box">
+                            <h4>👥 Frères</h4>
+                            <p>Deux nœuds qui ont le même parent.</p>
+                        </div>
+                        <div class="info-box">
+                            <h4>👴 Ancêtre</h4>
+                            <p>Un des parents d'un nœud dans le chemin vers la racine.</p>
+                        </div>
+                        <div class="info-box">
+                            <h4>👶 Descendant</h4>
+                            <p>Un des fils d'un nœud (direct ou indirect).</p>
+                        </div>
+                        <h3>🔢 Mesures importantes</h3>
+                        <div class="example-list">
+                            <p><strong>Degré d'un nœud :</strong> Nombre de ses enfants (0, 1 ou 2 pour un arbre binaire)</p>
+                            <p><strong>Profondeur d'un nœud :</strong> Longueur du chemin entre la racine et ce nœud</p>
+                            <p><strong>Hauteur d'un arbre :</strong> Profondeur maximale de ses nœuds</p>
+                            <p><strong>Hauteur d'un nœud :</strong> Longueur maximale du chemin entre ce nœud et une feuille</p>
+                        </div>
+                        <h3>📏 Exemples de calculs</h3>
+                        <div class="tree-visualization">
+                            <svg width="400" height="250">
+                                <line x1="200" y1="40" x2="120" y2="100" class="tree-line"/>
+                                <line x1="200" y1="40" x2="280" y2="100" class="tree-line"/>
+                                <line x1="120" y1="100" x2="80" y2="160" class="tree-line"/>
+                                <line x1="280" y1="100" x2="320" y2="160" class="tree-line"/>
+                                
+                                <circle cx="200" cy="40" r="25" class="tree-node"/>
+                                <text x="200" y="48" text-anchor="middle" class="tree-text">A</text>
+                                
+                                <circle cx="120" cy="100" r="25" class="tree-node"/>
+                                <text x="120" y="108" text-anchor="middle" class="tree-text">B</text>
+                                
+                                <circle cx="280" cy="100" r="25" class="tree-node"/>
+                                <text x="280" y="108" text-anchor="middle" class="tree-text">C</text>
+                                
+                                <circle cx="80" cy="160" r="25" class="tree-node"/>
+                                <text x="80" y="168" text-anchor="middle" class="tree-text">D</text>
+                                
+                                <circle cx="320" cy="160" r="25" class="tree-node"/>
+                                <text x="320" y="168" text-anchor="middle" class="tree-text">E</text>
+                            </svg>
+                        </div>
+                        <div class="example-list">
+                            <p><strong>Racine :</strong> A</p>
+                            <p><strong>Feuilles :</strong> D, E</p>
+                            <p><strong>Frères :</strong> B et C sont frères ; D et E sont frères</p>
+                            <p><strong>Degré(A) :</strong> 2 (a deux enfants)</p>
+                            <p><strong>Degré(B) :</strong> 1 (a un enfant)</p>
+                            <p><strong>Degré(D) :</strong> 0 (feuille)</p>
+                            <p><strong>Profondeur(A) :</strong> 0</p>
+                            <p><strong>Profondeur(B) :</strong> 1</p>
+                            <p><strong>Profondeur(D) :</strong> 2</p>
+                            <p><strong>Hauteur de l'arbre :</strong> 2</p>
+                        </div>
+                    </div>
+                `
+            },
+            3: {
+                title: "Implémentation des Arbres Binaires",
+                content: `
+                    <div class="lesson-content">
+                        <h3>💾 Implémentation par listes en Python</h3>
+                        
+                        <div class="info-box">
+                            <h4>Structure de données</h4>
+                            <p>Un arbre binaire non vide est représenté par une liste de trois éléments :</p>
+                            <p><strong>[valeur, fils_gauche, fils_droit]</strong></p>
+                            <p>Un arbre vide est représenté par : <strong>None</strong></p>
+                        </div>
+                        <h3>📝 Exemple simple</h3>
+                        <div class="code-block"><span class="comment"># Arbre avec juste une racine (valeur 5)</span>
+arbre = [<span class="number">5</span>, <span class="keyword">None</span>, <span class="keyword">None</span>]
+<span class="comment"># Arbre avec racine et deux fils</span>
+arbre = [<span class="number">10</span>, [<span class="number">5</span>, <span class="keyword">None</span>, <span class="keyword">None</span>], [<span class="number">15</span>, <span class="keyword">None</span>, <span class="keyword">None</span>]]</div>
+                        <h3>🌲 Exemple complet</h3>
+                        <div class="tree-visualization">
+                            <svg width="350" height="200">
+                                <line x1="175" y1="30" x2="100" y2="90" class="tree-line"/>
+                                <line x1="175" y1="30" x2="250" y2="90" class="tree-line"/>
+                                <line x1="100" y1="90" x2="60" y2="150" class="tree-line"/>
+                                <line x1="100" y1="90" x2="140" y2="150" class="tree-line"/>
+                                <line x1="250" y1="90" x2="290" y2="150" class="tree-line"/>
+                                
+                                <circle cx="175" cy="30" r="20" class="tree-node"/>
+                                <text x="175" y="37" text-anchor="middle" class="tree-text">15</text>
+                                
+                                <circle cx="100" cy="90" r="20" class="tree-node"/>
+                                <text x="100" y="97" text-anchor="middle" class="tree-text">7</text>
+                                
+                                <circle cx="250" cy="90" r="20" class="tree-node"/>
+                                <text x="250" y="97" text-anchor="middle" class="tree-text">20</text>
+                                
+                                <circle cx="60" cy="150" r="20" class="tree-node"/>
+                                <text x="60" y="157" text-anchor="middle" class="tree-text">6</text>
+                                
+                                <circle cx="140" cy="150" r="20" class="tree-node"/>
+                                <text x="140" y="157" text-anchor="middle" class="tree-text">9</text>
+                                
+                                <circle cx="290" cy="150" r="20" class="tree-node"/>
+                                <text x="290" y="157" text-anchor="middle" class="tree-text">25</text>
+                            </svg>
+                        </div>
+                        <div class="code-block">Arb = [<span class="number">15</span>, 
+       [<span class="number">7</span>, [<span class="number">6</span>, <span class="keyword">None</span>, <span class="keyword">None</span>], [<span class="number">9</span>, <span class="keyword">None</span>, <span class="keyword">None</span>]], 
+       [<span class="number">20</span>, <span class="keyword">None</span>, [<span class="number">25</span>, <span class="keyword">None</span>, <span class="keyword">None</span>]]]</div>
+                        <h3>🔧 Fonctions de base</h3>
+                        
+                        <h4>Test si un arbre est vide :</h4>
+                        <div class="code-block"><span class="keyword">def</span> <span class="function">est_vide</span>(arb):
+    <span class="keyword">return</span> arb == <span class="keyword">None</span></div>
+                        <h4>Obtenir la valeur de la racine :</h4>
+                        <div class="code-block"><span class="keyword">def</span> <span class="function">valeur</span>(arb):
+    <span class="keyword">return</span> arb[<span class="number">0</span>]</div>
+                        <h4>Obtenir le fils gauche :</h4>
+                        <div class="code-block"><span class="keyword">def</span> <span class="function">fils_gauche</span>(arb):
+    <span class="keyword">return</span> arb[<span class="number">1</span>]</div>
+                        <h4>Obtenir le fils droit :</h4>
+                        <div class="code-block"><span class="keyword">def</span> <span class="function">fils_droit</span>(arb):
+    <span class="keyword">return</span> arb[<span class="number">2</span>]</div>
+                        <h4>Tester si un nœud est une feuille :</h4>
+                        <div class="code-block"><span class="keyword">def</span> <span class="function">est_feuille</span>(arb):
+    <span class="keyword">return</span> arb[<span class="number">1</span>] == <span class="keyword">None</span> <span class="keyword">and</span> arb[<span class="number">2</span>] == <span class="keyword">None</span></div>
+                    </div>
+                `
+            },
+            4: {
+                title: "Parcours en Profondeur",
+                content: `
+                    <div class="lesson-content">
+                        <h3>🔍 Qu'est-ce qu'un parcours en profondeur ?</h3>
+                        <p>Le parcours en profondeur explore l'arbre en allant jusqu'au bout d'une branche avant de passer à la suivante. Il existe trois variantes selon l'ordre de visite des nœuds.</p>
+                        <h3>1️⃣ Parcours Préfixe (Préordre)</h3>
+                        <div class="info-box">
+                            <h4>Ordre : Racine → Gauche → Droit</h4>
+                            <p>On traite d'abord le nœud, puis son sous-arbre gauche, puis son sous-arbre droit.</p>
+                        </div>
+                        <div class="code-block"><span class="keyword">def</span> <span class="function">parcours_prefixe</span>(arb):
+    <span class="keyword">if</span> arb != <span class="keyword">None</span>:
+        <span class="function">print</span>(arb[<span class="number">0</span>])  <span class="comment"># Racine d'abord</span>
+        <span class="function">parcours_prefixe</span>(arb[<span class="number">1</span>])  <span class="comment"># Puis gauche</span>
+        <span class="function">parcours_prefixe</span>(arb[<span class="number">2</span>])  <span class="comment"># Puis droit</span></div>
+                        <h3>2️⃣ Parcours Infixe (Inordre)</h3>
+                        <div class="info-box">
+                            <h4>Ordre : Gauche → Racine → Droit</h4>
+                            <p>On traite le sous-arbre gauche, puis le nœud, puis le sous-arbre droit.</p>
+                            <p><strong>💡 Important :</strong> Pour un ABR, ce parcours donne les valeurs dans l'ordre croissant !</p>
+                        </div>
+                        <div class="code-block"><span class="keyword">def</span> <span class="function">parcours_infixe</span>(arb):
+    <span class="keyword">if</span> arb != <span class="keyword">None</span>:
+        <span class="function">parcours_infixe</span>(arb[<span class="number">1</span>])  <span class="comment"># Gauche d'abord</span>
+        <span class="function">print</span>(arb[<span class="number">0</span>])  <span class="comment"># Puis racine</span>
+        <span class="function">parcours_infixe</span>(arb[<span class="number">2</span>])  <span class="comment"># Puis droit</span></div>
+                        <h3>3️⃣ Parcours Postfixe (Postordre / Suffixe)</h3>
+                        <div class="info-box">
+                            <h4>Ordre : Gauche → Droit → Racine</h4>
+                            <p>On traite d'abord les deux sous-arbres, puis le nœud.</p>
+                            <p><strong>💡 Utilité :</strong> Utile pour évaluer des expressions arithmétiques ou libérer la mémoire.</p>
+                        </div>
+                        <div class="code-block"><span class="keyword">def</span> <span class="function">parcours_postfixe</span>(arb):
+    <span class="keyword">if</span> arb != <span class="keyword">None</span>:
+        <span class="function">parcours_postfixe</span>(arb[<span class="number">1</span>])  <span class="comment"># Gauche d'abord</span>
+        <span class="function">parcours_postfixe</span>(arb[<span class="number">2</span>])  <span class="comment"># Puis droit</span>
+        <span class="function">print</span>(arb[<span class="number">0</span>])  <span class="comment"># Racine à la fin</span></div>
+                        <h3>📊 Exemple visuel</h3>
+                        <div class="tree-visualization">
+                            <svg width="400" height="250">
+                                <line x1="200" y1="40" x2="120" y2="100" class="tree-line"/>
+                                <line x1="200" y1="40" x2="280" y2="100" class="tree-line"/>
+                                <line x1="120" y1="100" x2="70" y2="160" class="tree-line"/>
+                                <line x1="120" y1="100" x2="170" y2="160" class="tree-line"/>
+                                <line x1="280" y1="100" x2="250" y2="160" class="tree-line"/>
+                                <line x1="280" y1="100" x2="310" y2="160" class="tree-line"/>
+                                
+                                <circle cx="200" cy="40" r="25" class="tree-node"/>
+                                <text x="200" y="48" text-anchor="middle" class="tree-text">12</text>
+                                
+                                <circle cx="120" cy="100" r="25" class="tree-node"/>
+                                <text x="120" y="108" text-anchor="middle" class="tree-text">1</text>
+                                
+                                <circle cx="280" cy="100" r="25" class="tree-node"/>
+                                <text x="280" y="108" text-anchor="middle" class="tree-text">7</text>
+                                
+                                <circle cx="70" cy="160" r="25" class="tree-node"/>
+                                <text x="70" y="168" text-anchor="middle" class="tree-text">91</text>
+                                
+                                <circle cx="170" cy="160" r="25" class="tree-node"/>
+                                <text x="170" y="168" text-anchor="middle" class="tree-text">67</text>
+                                
+                                <circle cx="250" cy="160" r="25" class="tree-node"/>
+                                <text x="250" y="168" text-anchor="middle" class="tree-text">82</text>
+                                
+                                <circle cx="310" cy="160" r="25" class="tree-node"/>
+                                <text x="310" y="168" text-anchor="middle" class="tree-text">61</text>
+                            </svg>
+                        </div>
+                        <div class="example-list">
+                            <p><strong>Parcours Préfixe :</strong> 12, 1, 91, 67, 7, 82, 61</p>
+                            <p><strong>Parcours Infixe :</strong> 91, 1, 67, 12, 82, 7, 61</p>
+                            <p><strong>Parcours Postfixe :</strong> 91, 67, 1, 82, 61, 7, 12</p>
+                        </div>
+                    </div>
+                `
+            },
+            5: {
+                title: "Parcours en Largeur",
+                content: `
+                    <div class="lesson-content">
+                        <h3>🌊 Qu'est-ce qu'un parcours en largeur ?</h3>
+                        <p>Le parcours en largeur (ou BFS - Breadth-First Search) explore l'arbre <strong>niveau par niveau</strong>. On visite tous les nœuds d'un niveau avant de passer au niveau suivant.</p>
+                        <div class="info-box">
+                            <h4>Principe de fonctionnement</h4>
+                            <p>On utilise une <strong>file d'attente</strong> (FIFO - First In, First Out) :</p>
+                            <ul>
+                                <li>On commence par mettre la racine dans la file</li>
+                                <li>On traite le premier nœud de la file</li>
+                                <li>On ajoute ses fils (s'ils existent) à la file</li>
+                                <li>On répète jusqu'à ce que la file soit vide</li>
+                            </ul>
+                        </div>
+                        <h3>💻 Implémentation</h3>
+                        <div class="code-block"><span class="keyword">def</span> <span class="function">parcours_largeur</span>(arb):
+    <span class="keyword">if</span> arb == <span class="keyword">None</span>:
+        <span class="keyword">return</span>
+    
+    file = [arb]  <span class="comment"># Initialiser la file avec la racine</span>
+    
+    <span class="keyword">while</span> <span class="function">len</span>(file) &gt; <span class="number">0</span>:
+        noeud = file.<span class="function">pop</span>(<span class="number">0</span>)  <span class="comment"># Retirer le premier élément</span>
+        <span class="function">print</span>(noeud[<span class="number">0</span>])  <span class="comment"># Traiter le nœud</span>
+        
+        <span class="comment"># Ajouter les fils à la file</span>
+        <span class="keyword">if</span> noeud[<span class="number">1</span>] != <span class="keyword">None</span>:
+            file.<span class="function">append</span>(noeud[<span class="number">1</span>])
+        <span class="keyword">if</span> noeud[<span class="number">2</span>] != <span class="keyword">None</span>:
+            file.<span class="function">append</span>(noeud[<span class="number">2</span>])</div>
+                        <h3>📊 Exemple pas à pas</h3>
+                        <div class="tree-visualization">
+                            <svg width="400" height="250">
+                                <line x1="200" y1="40" x2="120" y2="100" class="tree-line"/>
+                                <line x1="200" y1="40" x2="280" y2="100" class="tree-line"/>
+                                <line x1="120" y1="100" x2="70" y2="160" class="tree-line"/>
+                                <line x1="120" y1="100" x2="170" y2="160" class="tree-line"/>
+                                <line x1="280" y1="100" x2="250" y2="160" class="tree-line"/>
+                                <line x1="280" y1="100" x2="310" y2="160" class="tree-line"/>
+                                
+                                <circle cx="200" cy="40" r="25" class="tree-node"/>
+                                <text x="200" y="48" text-anchor="middle" class="tree-text">12</text>
+                                
+                                <circle cx="120" cy="100" r="25" class="tree-node"/>
+                                <text x="120" y="108" text-anchor="middle" class="tree-text">1</text>
+                                
+                                <circle cx="280" cy="100" r="25" class="tree-node"/>
+                                <text x="280" y="108" text-anchor="middle" class="tree-text">7</text>
+                                
+                                <circle cx="70" cy="160" r="25" class="tree-node"/>
+                                <text x="70" y="168" text-anchor="middle" class="tree-text">91</text>
+                                
+                                <circle cx="170" cy="160" r="25" class="tree-node"/>
+                                <text x="170" y="168" text-anchor="middle" class="tree-text">67</text>
+                                
+                                <circle cx="250" cy="160" r="25" class="tree-node"/>
+                                <text x="250" y="168" text-anchor="middle" class="tree-text">82</text>
+                                
+                                <circle cx="310" cy="160" r="25" class="tree-node"/>
+                                <text x="310" y="168" text-anchor="middle" class="tree-text">61</text>
+                            </svg>
+                        </div>
+                        <div class="example-list">
+                            <p><strong>Niveau 0 :</strong> 12</p>
+                            <p><strong>Niveau 1 :</strong> 1, 7</p>
+                            <p><strong>Niveau 2 :</strong> 91, 67, 82, 61</p>
+                            <p><strong>Résultat du parcours :</strong> 12, 1, 7, 91, 67, 82, 61</p>
+                        </div>
+                        <h3>🆚 Comparaison avec le parcours en profondeur</h3>
+                        <div class="info-box">
+                            <h4>Quand utiliser le parcours en largeur ?</h4>
+                            <ul>
+                                <li>Trouver le chemin le plus court</li>
+                                <li>Explorer les nœuds par niveau</li>
+                                <li>Problèmes de distance minimale</li>
+                            </ul>
+                        </div>
+                        <div class="info-box" style="background: #fef3c7; border-color: #f59e0b;">
+                            <h4>Quand utiliser le parcours en profondeur ?</h4>
+                            <ul>
+                                <li>Explorer tous les chemins possibles</li>
+                                <li>Résoudre des puzzles et labyrinthes</li>
+                                <li>Vérifier des propriétés de l'arbre</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            },
+            6: {
+                title: "Arbres Binaires de Recherche (ABR)",
+                content: `
+                    <div class="lesson-content">
+                        <h3>🎯 Qu'est-ce qu'un ABR ?</h3>
+                        <p>Un <strong>Arbre Binaire de Recherche (ABR)</strong> est un arbre binaire avec une propriété spéciale qui permet des recherches très efficaces.</p>
+                        <div class="info-box">
+                            <h4>Propriété fondamentale d'un ABR</h4>
+                            <p>Pour chaque nœud :</p>
+                            <ul>
+                                <li>Tous les nœuds du <strong>sous-arbre gauche</strong> ont des valeurs <strong>≤</strong> à celle du nœud</li>
+                                <li>Tous les nœuds du <strong>sous-arbre droit</strong> ont des valeurs <strong>&gt;</strong> à celle du nœud</li>
+                                <li>Cette propriété est vraie pour <strong>tous les nœuds</strong> de l'arbre</li>
+                            </ul>
+                        </div>
+                        <h3>📊 Exemple d'ABR</h3>
+                        <div class="tree-visualization">
+                            <svg width="450" height="300">
+                                <line x1="225" y1="40" x2="140" y2="100" class="tree-line"/>
+                                <line x1="225" y1="40" x2="310" y2="100" class="tree-line"/>
+                                <line x1="140" y1="100" x2="80" y2="160" class="tree-line"/>
+                                <line x1="140" y1="100" x2="200" y2="160" class="tree-line"/>
+                                <line x1="310" y1="100" x2="360" y2="160" class="tree-line"/>
+                                <line x1="200" y1="160" x2="180" y2="220" class="tree-line"/>
+                                
+                                <circle cx="225" cy="40" r="25" class="tree-node"/>
+                                <text x="225" y="48" text-anchor="middle" class="tree-text">24</text>
+                                
+                                <circle cx="140" cy="100" r="25" class="tree-node"/>
+                                <text x="140" y="108" text-anchor="middle" class="tree-text">8</text>
+                                
+                                <circle cx="310" cy="100" r="25" class="tree-node"/>
+                                <text x="310" y="108" text-anchor="middle" class="tree-text">29</text>
+                                
+                                <circle cx="80" cy="160" r="25" class="tree-node"/>
+                                <text x="80" y="168" text-anchor="middle" class="tree-text">1</text>
+                                
+                                <circle cx="200" cy="160" r="25" class="tree-node"/>
+                                <text x="200" y="168" text-anchor="middle" class="tree-text">16</text>
+                                
+                                <circle cx="360" cy="160" r="25" class="tree-node"/>
+                                <text x="360" y="168" text-anchor="middle" class="tree-text">35</text>
+                                
+                                <circle cx="180" cy="220" r="25" class="tree-node"/>
+                                <text x="180" y="228" text-anchor="middle" class="tree-text">15</text>
+                            </svg>
+                        </div>
+                        <p style="text-align: center; color: #666; margin-top: 10px;">
+                            ✓ C'est un ABR valide : 1 ≤ 8 &lt; 15 ≤ 16 &lt; 24 &lt; 29 &lt; 35
+                        </p>
+                        <h3>🔍 Recherche dans un ABR</h3>
+                        <p>La recherche dans un ABR est très efficace grâce à la <strong>recherche dichotomique</strong> :</p>
+                        <div class="code-block"><span class="keyword">def</span> <span class="function">rechercher</span>(x, abr):
+    <span class="keyword">if</span> abr == <span class="keyword">None</span>:
+        <span class="keyword">return</span> <span class="keyword">False</span>  <span class="comment"># Élément non trouvé</span>
+    
+    <span class="keyword">if</span> x == abr[<span class="number">0</span>]:
+        <span class="keyword">return</span> <span class="keyword">True</span>  <span class="comment"># Élément trouvé !</span>
+    
+    <span class="keyword">if</span> x &lt; abr[<span class="number">0</span>]:
+        <span class="keyword">return</span> <span class="function">rechercher</span>(x, abr[<span class="number">1</span>])  <span class="comment"># Chercher à gauche</span>
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> <span class="function">rechercher</span>(x, abr[<span class="number">2</span>])  <span class="comment"># Chercher à droite</span></div>
+                        <h3>➕ Insertion dans un ABR</h3>
+                        <div class="code-block"><span class="keyword">def</span> <span class="function">inserer</span>(arb, v):
+    <span class="keyword">if</span> arb == <span class="keyword">None</span>:
+        <span class="keyword">return</span> [v, <span class="keyword">None</span>, <span class="keyword">None</span>]  <span class="comment"># Créer un nouveau nœud</span>
+    
+    <span class="keyword">if</span> v &lt;= arb[<span class="number">0</span>]:
+        arb[<span class="number">1</span>] = <span class="function">inserer</span>(arb[<span class="number">1</span>], v)  <span class="comment"># Insérer à gauche</span>
+    <span class="keyword">else</span>:
+        arb[<span class="number">2</span>] = <span class="function">inserer</span>(arb[<span class="number">2</span>], v)  <span class="comment"># Insérer à droite</span>
+    
+    <span class="keyword">return</span> arb</div>
+                        <h3>🔢 Trouver le minimum et le maximum</h3>
+                        <div class="code-block"><span class="keyword">def</span> <span class="function">min_abr</span>(abr):
+    <span class="comment"># Le minimum est le nœud le plus à gauche</span>
+    <span class="keyword">if</span> abr[<span class="number">1</span>] == <span class="keyword">None</span>:
+        <span class="keyword">return</span> abr[<span class="number">0</span>]
+    <span class="keyword">return</span> <span class="function">min_abr</span>(abr[<span class="number">1</span>])
+<span class="keyword">def</span> <span class="function">max_abr</span>(abr):
+    <span class="comment"># Le maximum est le nœud le plus à droite</span>
+    <span class="keyword">if</span> abr[<span class="number">2</span>] == <span class="keyword">None</span>:
+        <span class="keyword">return</span> abr[<span class="number">0</span>]
+    <span class="keyword">return</span> <span class="function">max_abr</span>(abr[<span class="number">2</span>])</div>
+                        <h3>⚡ Avantages des ABR</h3>
+                        <div class="example-list">
+                            <ul>
+                                <li><strong>Recherche rapide :</strong> O(log n) en moyenne</li>
+                                <li><strong>Insertion rapide :</strong> O(log n) en moyenne</li>
+                                <li><strong>Suppression rapide :</strong> O(log n) en moyenne</li>
+                                <li><strong>Parcours infixe :</strong> Donne les valeurs triées</li>
+                            </ul>
+                        </div>
+                        <div class="info-box" style="background: #fef3c7; border-color: #f59e0b;">
+                            <h4>⚠️ Attention</h4>
+                            <p>Un ABR peut devenir déséquilibré et perdre son efficacité. Pour maintenir l'équilibre, on utilise des structures comme les <strong>arbres AVL</strong> ou les <strong>arbres rouge-noir</strong>.</p>
+                        </div>
+                    </div>
+                `
+            }
+        };
+        function showLesson(lessonId) {
+            const lesson = lessons[lessonId];
+            const modal = document.getElementById('lessonModal');
+            const content = document.getElementById('lessonContent');
+            
+            content.innerHTML = `
+                <h2 style="color: var(--primary); margin-bottom: 20px;">${lesson.title}</h2>
+                ${lesson.content}
+            `;
+            
+            modal.classList.add('active');
+        }
+        function closeModal() {
+            document.getElementById('lessonModal').classList.remove('active');
+        }
+        // Close modal when clicking outside
+        document.getElementById('lessonModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        // C Code Examples
+        const cExamples = {
+            1: `#include <stdio.h>
+#include <stdlib.h>
+// Structure d'un nœud
+typedef struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+} Node;
+// Créer un nouveau nœud
+Node* createNode(int data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = data;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+// Vérifier si un nœud est une feuille
+int isLeaf(Node* node) {
+    return (node->left == NULL && node->right == NULL);
+}
+int main() {
+    // Créer un arbre simple
+    Node* root = createNode(10);
+    root->left = createNode(5);
+    root->right = createNode(15);
+    root->left->left = createNode(3);
+    root->left->right = createNode(7);
+    
+    printf("Racine: %d\\n", root->data);
+    printf("Fils gauche: %d\\n", root->left->data);
+    printf("Fils droit: %d\\n", root->right->data);
+    printf("La racine est une feuille? %s\\n", 
+           isLeaf(root) ? "Oui" : "Non");
+    
+    return 0;
+}`,
+            2: `#include <stdio.h>
+#include <stdlib.h>
+typedef struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+} Node;
+Node* createNode(int data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = data;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+// Parcours préfixe
+void parcoursPrefix(Node* root) {
+    if (root != NULL) {
+        printf("%d ", root->data);
+        parcoursPrefix(root->left);
+        parcoursPrefix(root->right);
+    }
+}
+// Parcours infixe
+void parcoursInfix(Node* root) {
+    if (root != NULL) {
+        parcoursInfix(root->left);
+        printf("%d ", root->data);
+        parcoursInfix(root->right);
+    }
+}
+// Parcours postfixe
+void parcoursPostfix(Node* root) {
+    if (root != NULL) {
+        parcoursPostfix(root->left);
+        parcoursPostfix(root->right);
+        printf("%d ", root->data);
+    }
+}
+int main() {
+    Node* root = createNode(12);
+    root->left = createNode(1);
+    root->right = createNode(7);
+    root->left->left = createNode(91);
+    root->left->right = createNode(67);
+    root->right->left = createNode(82);
+    root->right->right = createNode(61);
+    
+    printf("Parcours Prefixe: ");
+    parcoursPrefix(root);
+    printf("\\n");
+    
+    printf("Parcours Infixe: ");
+    parcoursInfix(root);
+    printf("\\n");
+    
+    printf("Parcours Postfixe: ");
+    parcoursPostfix(root);
+    printf("\\n");
+    
+    return 0;
+}`,
+            3: `#include <stdio.h>
+#include <stdlib.h>
+typedef struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+} Node;
+Node* createNode(int data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = data;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+// Recherche dans un ABR
+int rechercher(Node* root, int x) {
+    if (root == NULL) {
+        return 0;  // Pas trouvé
+    }
+    if (x == root->data) {
+        return 1;  // Trouvé!
+    }
+    if (x < root->data) {
+        return rechercher(root->left, x);
+    } else {
+        return rechercher(root->right, x);
+    }
+}
+// Insérer dans un ABR
+Node* inserer(Node* root, int value) {
+    if (root == NULL) {
+        return createNode(value);
+    }
+    
+    if (value <= root->data) {
+        root->left = inserer(root->left, value);
+    } else {
+        root->right = inserer(root->right, value);
+    }
+    
+    return root;
+}
+// Trouver le minimum
+int findMin(Node* root) {
+    while (root->left != NULL) {
+        root = root->left;
+    }
+    return root->data;
+}
+// Parcours infixe pour afficher l'ABR trié
+void afficherTrie(Node* root) {
+    if (root != NULL) {
+        afficherTrie(root->left);
+        printf("%d ", root->data);
+        afficherTrie(root->right);
+    }
+}
+int main() {
+    Node* root = NULL;
+    
+    // Construire un ABR
+    root = inserer(root, 24);
+    root = inserer(root, 8);
+    root = inserer(root, 29);
+    root = inserer(root, 1);
+    root = inserer(root, 16);
+    root = inserer(root, 35);
+    
+    printf("ABR (ordre croissant): ");
+    afficherTrie(root);
+    printf("\\n");
+    
+    printf("Rechercher 16: %s\\n", 
+           rechercher(root, 16) ? "Trouve" : "Non trouve");
+    printf("Rechercher 50: %s\\n", 
+           rechercher(root, 50) ? "Trouve" : "Non trouve");
+    
+    printf("Valeur minimale: %d\\n", findMin(root));
+    
+    return 0;
+}`,
+            4: `#include <stdio.h>
+#include <stdlib.h>
+typedef struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+} Node;
+Node* createNode(int data) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = data;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+// Compter le nombre de nœuds
+int nombreNoeuds(Node* root) {
+    if (root == NULL) {
+        return 0;
+    }
+    return 1 + nombreNoeuds(root->left) + nombreNoeuds(root->right);
+}
+// Calculer la hauteur
+int hauteur(Node* root) {
+    if (root == NULL) {
+        return 0;
+    }
+    
+    int hauteurGauche = hauteur(root->left);
+    int hauteurDroite = hauteur(root->right);
+    
+    return 1 + (hauteurGauche > hauteurDroite ? 
+                hauteurGauche : hauteurDroite);
+}
+// Compter les feuilles
+int nombreFeuilles(Node* root) {
+    if (root == NULL) {
+        return 0;
+    }
+    if (root->left == NULL && root->right == NULL) {
+        return 1;
+    }
+    return nombreFeuilles(root->left) + nombreFeuilles(root->right);
+}
+int main() {
+    // Créer un arbre
+    Node* root = createNode(10);
+    root->left = createNode(5);
+    root->right = createNode(15);
+    root->left->left = createNode(3);
+    root->left->right = createNode(7);
+    root->right->right = createNode(20);
+    
+    printf("Nombre de noeuds: %d\\n", nombreNoeuds(root));
+    printf("Hauteur de l'arbre: %d\\n", hauteur(root));
+    printf("Nombre de feuilles: %d\\n", nombreFeuilles(root));
+    
+    return 0;
+}`
+        };
+        let currentExample = 1;
+        function loadCExample(exampleId) {
+            currentExample = exampleId;
+            document.getElementById('codeEditor').value = cExamples[exampleId];
+            
+            // Update active tab
+            const tabs = document.querySelectorAll('.editor-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Clear output
+            document.getElementById('output').textContent = 'Cliquez sur "Exécuter" pour voir le résultat...';
+        }
+        function runCode() {
+            const code = document.getElementById('codeEditor').value;
+            const outputDiv = document.getElementById('output');
+            
+            // Simulate compilation and execution
+            outputDiv.innerHTML = '<span style="color: #10b981;">✓ Compilation réussie!</span>\n\n';
+            
+            // Simulate different outputs based on the current example
+            const outputs = {
+                1: `Racine: 10
+Fils gauche: 5
+Fils droit: 15
+La racine est une feuille? Non`,
+                2: `Parcours Prefixe: 12 1 91 67 7 82 61 
+Parcours Infixe: 91 1 67 12 82 7 61 
+Parcours Postfixe: 91 67 1 82 61 7 12 `,
+                3: `ABR (ordre croissant): 1 8 16 24 29 35 
+Rechercher 16: Trouve
+Rechercher 50: Non trouve
+Valeur minimale: 1`,
+                4: `Nombre de noeuds: 6
+Hauteur de l'arbre: 3
+Nombre de feuilles: 3`
+            };
+            
+            setTimeout(() => {
+                outputDiv.innerHTML += outputs[currentExample] || 'Exécution terminée.';
+            }, 500);
+        }
+        // Initialize with first C example
+        window.onload = function() {
+            loadCExample(1);
+        };
+    </script>
+</body>
+</html>
